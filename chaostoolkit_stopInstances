@@ -1,0 +1,70 @@
+{
+    "version": "1.0.0",
+    "title": "Stopping instances",
+    "description": "Check if I can stop instances.",
+    "tags": ["ec2"],
+    "steady-state-hypothesis": {
+        "title": "Instance id still present",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "count-instances",
+                "tolerance": 2,
+                "provider": {
+                    "type": "python",
+                    "module": "chaosaws.ec2.probes",
+                    "func": "count_instances",
+                    "arguments": {
+                        "filters": [
+                             {
+                                "Name": "availability-zone",
+                                "Values": [
+                                    "us-east-1"
+                                ]
+                            },
+                            {
+                               "Name": "instance-state-code",
+                                "Values": [
+                                    "16"
+                                ] 
+                            }
+
+                        ]
+                     }
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "stop-instance",
+            "provider": {
+                "module":"chaosaws.ec2.actions",
+                "type": "python",
+                "func": "stop_instance",
+                "arguments": {
+                        "filters": [
+                             {
+                                "Name": "availability-zone",
+                                "Values": [
+                                    "us-east-1"
+                                ]
+                            },
+                            {
+                               "Name": "instance-state-code",
+                                "Values": [
+                                    "16"
+                                ] 
+                            }
+                        ]
+                }
+                
+            }
+        },
+        {
+            "ref":"count-instances"
+        }
+    ],
+    "rollbacks": []
+}
